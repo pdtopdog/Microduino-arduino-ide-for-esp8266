@@ -132,7 +132,7 @@ void loop() {
     Serial.println(t);
     Serial.println(h);    
     
-	  sprintf(ser, "Temp: %d'C, Humi: %d%.", t, h);    
+    sprintf(ser, "Temp: %d'C, Humi: %d%.", t, h);    
     Serial.println(ser);
      
     sprintf(str, "cmd=upload&device_name=Humi&data=%d&device_name=Temp&data=%d&uid=uid&key=%s\r\n", h, t, privateKey);
