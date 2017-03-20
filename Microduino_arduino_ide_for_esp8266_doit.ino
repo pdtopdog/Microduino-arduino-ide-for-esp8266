@@ -2,26 +2,25 @@
 #include "DHT.h"
 
 
-#define DHTPIN 13    // what digital pin we're connected to
-
+#define DHTPIN 13    // 连接gpio 13
 #define DHTTYPE DHT21   // DHT 21 (AM2301)
 
 DHT dht(DHTPIN, DHTTYPE);
 
 #define u8 unsigned char
 
-const char* ssid     = "zmhm";
-const char* password = "12312300";
+const char* ssid     = "ssid";
+const char* password = "password";
 
-const char* host = "iot.doit.am";//物联网平台
+const char* host = "iot.doit.am"; //物联网平台
 const int httpPort = 8810;
 
-const char* streamId   = "topdog";
-const char* privateKey = "503e7fe9f6b1b99d108fdb4d1a2cdbf0";
+const char* streamId   = "uid";
+const char* privateKey = "api key";
 char ser[64];
 char str[512];
 WiFiClient client;// 使用WiFi客户端类创建TCP连接
-//反向控制：
+
 unsigned long MS_TIMER = 0;
 unsigned long lastMSTimer = 0;
 String comdata = "";
@@ -29,13 +28,14 @@ String recDataStr ="";
 char flag = false;
 bool bConnected = false;
 
+//希尔排序，消除跳变
 void shellsort( u8 k[],int n)
 {
     int i, j, flag ,gap = n;
      int tmp;
     while(gap > 1){
-    gap = gap/2;                /*增量缩小，每次减半*/
-    do{                        /*子序列应用冒泡排序*/
+    gap = gap/2;               
+    do{                        
         flag = 0;
         for(i=0;i<=n-gap;i++){
             j = i + gap;
@@ -110,7 +110,7 @@ void loop() {
     if (first_flag)
     {
       first_flag = false;
-      sprintf(str, "cmd=subscribe&topic=topdog\r\n");//注册用户名，以让后面的反向控制得以是实现
+      sprintf(str, "cmd=subscribe&topic=uid\r\n");//使用注册uid登陆
       client.print(str);
       return;
     }
@@ -135,16 +135,15 @@ void loop() {
 	  sprintf(ser, "Temp: %d'C, Humi: %d%.", t, h);    
     Serial.println(ser);
      
-    sprintf(str, "cmd=upload&device_name=Humi&data=%d&device_name=Temp&data=%d&uid=topdog&key=%s\r\n", h, t, privateKey);
+    sprintf(str, "cmd=upload&device_name=Humi&data=%d&device_name=Temp&data=%d&uid=uid&key=%s\r\n", h, t, privateKey);
     client.print(str);    //实测30秒数据更新一次
     
   }
   
   if (client.available())
   {
-    //读并处理
-    // R读取服务器的应答的所有行，并把它们打印到串口
-    String recDataStr = client.readStringUntil('\n');//必须要接收这个应答，否则读数无法正常进行！！！！！！
+    //串口读取网站回文
+    String recDataStr = client.readStringUntil('\n');
     Serial.println(recDataStr);
     
     }     
